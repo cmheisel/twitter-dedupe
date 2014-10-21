@@ -18,6 +18,10 @@ Notes on implementation plan
 * If link, and link not in one week cache
     * Retweet via selected account
 
+Duplicate URLs
+* May need to follow URLs to see if they redirect to circumvent URL shortners
+* May need to strip query strings
+
 Open questions to answer
 ---------------------------
 * Good library for following an account or direct API access?
@@ -25,3 +29,5 @@ Open questions to answer
 * What info do I need from the noisy account to do retweets?
 * Polling daemon or scheduled celery job? Or RQ?
 * Memcache/Redis for cache? Or disk? Is there a nice pluggable cache backend I can use?
+
+http://www.gavinj.net/2012/06/building-python-daemon-process.html
