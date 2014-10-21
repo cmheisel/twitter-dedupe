@@ -17,7 +17,11 @@ def get_since_id(api, screen_name):
         return 1
 
 
-def get_unique_statuses(api, screen_name, since_id, cache):
+def _key(screen_name, url):
+    return "%s_%s" % (screen_name, url)
+
+
+def get_unique_statuses(api, screen_name, since_id, cache, cache_length=604800):
     logger = logging.getLogger("twitterdedupe.get_unique_statuses")
     logger.debug("%s -- since %s" % (screen_name, since_id))
 
@@ -30,13 +34,12 @@ def get_unique_statuses(api, screen_name, since_id, cache):
         for s in timeline:
             for url in s.entities['urls']:
                 expanded_url = url['expanded_url']
-                url_count = cache.get(expanded_url, None)
+                key = _key(screen_name, expanded_url)
+                url_count = cache.get(key, None)
                 logger.info("%s - %s -- %s" % (s.id, expanded_url, url_count))
-                if url_count is not None or 0:
-                    cache.set(expanded_url, url_count+1)
-                else:
+                if url_count is None:
                     stati.append(s)
-                    cache.set(expanded_url, 1)
+                    cache.set(key, 1, cache_length)
         if len(timeline) > 0:
             page += 1
         else:
