@@ -10,10 +10,13 @@ class LocalCache(object):
 
 
 class RedisCache(object):
-    def __init__(self, redis):
+    def __init__(self, redis, timeout=30):
         self.redis = redis
+        self.timeout = timeout
 
-    def set(self, key, value, timeout=30):
+    def set(self, key, value, timeout=None):
+        if timeout is None:
+            timeout = self.timeout
         self.redis.setex(key, timeout, value)
 
     def get(self, key, default=None):
