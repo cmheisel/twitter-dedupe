@@ -9,6 +9,14 @@ def login(consumer_key, consumer_secret, access_token, access_token_secret):
     return api
 
 
+def get_since_id(api, screen_name, previous=10):
+    timeline = api.user_timeline(screen_name=screen_name, count=previous+1)
+    try:
+        return timeline[-1].id
+    except IndexError:
+        return 1
+
+
 def get_unique_statuses(api, screen_name, since_id, cache):
     logger = logging.getLogger("twitterdedupe.get_unique_statuses")
     logger.debug("%s -- since %s" % (screen_name, since_id))
@@ -27,7 +35,7 @@ def get_unique_statuses(api, screen_name, since_id, cache):
                 if url_count is not None or 0:
                     cache.set(expanded_url, url_count+1)
                 else:
-                    stati.append(s.id)
+                    stati.append(s)
                     cache.set(expanded_url, 1)
         if len(timeline) > 0:
             page += 1
