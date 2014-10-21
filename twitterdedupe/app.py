@@ -23,7 +23,7 @@ def _key(screen_name, url):
     return "%s_%s" % (screen_name, url)
 
 
-def lengthen_url(url):
+def _lengthen_url(url):
     try:
         r = requests.get(url)
         return r.url
@@ -43,7 +43,7 @@ def get_unique_statuses(api, screen_name, since_id, cache, cache_length=604800):
         timeline = api.user_timeline(screen_name=screen_name, since_id=since_id, page=page)
         for s in timeline:
             for url in s.entities['urls']:
-                expanded_url = lengthen_url(url['expanded_url'])
+                expanded_url = _lengthen_url(url['expanded_url'])
                 key = _key(screen_name, expanded_url)
                 if cache.get(key)is None:
                     stati.append(s)
