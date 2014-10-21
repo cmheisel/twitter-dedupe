@@ -9,8 +9,8 @@ def login(consumer_key, consumer_secret, access_token, access_token_secret):
     return api
 
 
-def get_since_id(api, screen_name, previous=10):
-    timeline = api.user_timeline(screen_name=screen_name, count=previous+1)
+def get_since_id(api, screen_name):
+    timeline = api.user_timeline(screen_name=screen_name)
     try:
         return timeline[-1].id
     except IndexError:
