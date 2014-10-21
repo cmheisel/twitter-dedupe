@@ -1,5 +1,6 @@
-import tweepy
 import logging
+
+import tweepy
 import requests
 
 
@@ -44,8 +45,7 @@ def get_unique_statuses(api, screen_name, since_id, cache, cache_length=604800):
             for url in s.entities['urls']:
                 expanded_url = lengthen_url(url['expanded_url'])
                 key = _key(screen_name, expanded_url)
-                url_count = cache.get(key, None)
-                if url_count is None:
+                if cache.get(key)is None:
                     stati.append(s)
                     cache.set(key, 1, cache_length)
                     logger.info("%s - %s" % (s.id, expanded_url))
@@ -53,7 +53,12 @@ def get_unique_statuses(api, screen_name, since_id, cache, cache_length=604800):
                 # Let text only tweets pass through
                 # TODO: Add MD5 checking because maybe someone will make a noisy
                 # text account
-                stati.append(s)
+                key = _key(screen_name, hash(s.text))
+                if cache.get(key) is None:
+                    stati.append(s)
+                    cache.set(key, 1, cache_length)
+                    logger.info("%s - %s" % (s.id, s.text[:25]))
+
         if len(timeline) > 0:
             page += 1
         else:
