@@ -31,36 +31,33 @@ def _lengthen_url(url):
         return url
 
 
-def get_unique_statuses(api, screen_name, since_id, cache, cache_length=604800):
+def get_my_unique_statuses(api, since_id, cache, cache_length=604800):
     logger = logging.getLogger("twitterdedupe.get_unique_statuses")
-    logger.debug("%s -- since %s" % (screen_name, since_id))
+    screen_name = api.me().screen_name
+    logger.info("%s -- since %s" % (screen_name, since_id))
 
-    gather_results = True
+#    gather_results = True
     stati = []
     page = 1
 
-    while gather_results:
-        timeline = api.user_timeline(screen_name=screen_name, since_id=since_id, page=page)
-        for s in timeline:
-            for url in s.entities['urls']:
-                expanded_url = _lengthen_url(url['expanded_url'])
-                key = _key(screen_name, expanded_url)
-                if cache.get(key)is None:
-                    stati.append(s)
-                    cache.set(key, 1, cache_length)
-                    logger.info("%s - %s" % (s.id, expanded_url))
-            if len(s.entities['urls']) == 0:
-                # Let text only tweets pass through
-                # TODO: Add MD5 checking because maybe someone will make a noisy
-                # text account
-                key = _key(screen_name, hash(s.text))
-                if cache.get(key) is None:
-                    stati.append(s)
-                    cache.set(key, 1, cache_length)
-                    logger.info("%s - %s" % (s.id, s.text[:25]))
-
-        if len(timeline) > 0:
-            page += 1
-        else:
-            gather_results = False
+    # By using home_timeline, that means the retweeter user
+    # has to be following the source(s) they want deduped
+    timeline = api.home_timeline(since_id=since_id, page=page, count=100)
+    for s in timeline:
+        for url in s.entities['urls']:
+            expanded_url = _lengthen_url(url['expanded_url'])
+            key = _key(screen_name, expanded_url)
+            if cache.get(key)is None:
+                stati.append(s)
+                cache.set(key, 1, cache_length)
+                logger.info("%s - %s" % (s.id, expanded_url))
+        if len(s.entities['urls']) == 0:
+            # Let text only tweets pass through
+            # TODO: Add MD5 checking because maybe someone will make a noisy
+            # text account
+            key = _key(screen_name, hash(s.text))
+            if cache.get(key) is None:
+                stati.append(s)
+                cache.set(key, 1, cache_length)
+                logger.info("%s - %s" % (s.id, s.text[:25]))
     return stati
