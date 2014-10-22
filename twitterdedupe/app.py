@@ -3,6 +3,8 @@ import logging
 import tweepy
 import requests
 
+from urlparse import urlsplit, urlunsplit
+
 
 def login(consumer_key, consumer_secret, access_token, access_token_secret):
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -28,9 +30,14 @@ def lengthen_url(url, reqlib=None):
         reqlib = requests
     try:
         r = reqlib.get(url)
-        return r.url
+        url = r.url
     except Exception:
-        return url
+        url = url
+
+    # Ditch tracking query strings
+    parts = urlsplit(url)
+    parts = (parts[0], parts[1], parts[2], "", parts[4])
+    return urlunsplit(parts)
 
 
 def consider_status(status, cache, cache_length=604800, expand_fn=None):

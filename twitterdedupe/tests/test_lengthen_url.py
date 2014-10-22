@@ -9,14 +9,26 @@ def meth():
 
 
 def reqlib(url):
-    reqlib = Mock()
-    retval = Mock()
-    retval.url.return_value = url
-    reqlib.get.return_value = retval
+    reqlib = Mock(name="requests")
+    response = Mock(name="response")
+    response.url = url
+    reqlib.get.return_value = response
+
+    r = reqlib.get(url)
+    assert r.url == url
+    return reqlib
 
 
 def test_normal_url(meth):
-    url = "http://chrisheisel.com/"
+    url = "http://www.chrisheisel.com/"
     req = reqlib(url)
     result = meth(url, req)
     assert result == url
+
+
+def test_sneaky_url(meth):
+    url = "http://www.chrisheisel.com/?wpsrc=fol_tw"
+    expected = "http://www.chrisheisel.com/"
+    req = reqlib(url)
+    result = meth(url, req)
+    assert result == expected

@@ -89,6 +89,17 @@ def repeat_link_status():
 
 
 @pytest.fixture
+def sneaky_link_status():
+    status = MockStatus(
+        "hitchhikers",
+        44,
+        "Most definitely not the question",
+        "http://www.chrisheisel.com/?wpsrc=fol_tw"
+    )
+    return status
+
+
+@pytest.fixture
 def cache():
     return MemoryCache()
 
@@ -96,6 +107,16 @@ def cache():
 @pytest.fixture
 def passthru_expand_fn():
     return lambda url: url
+
+
+@pytest.fixture
+def nonetwork_expand_fn():
+    from test_lengthen_url import reqlib
+    from twitterdedupe import lengthen_url
+
+    def wrapped_lengthen_url(url):
+        return lengthen_url(url, reqlib)
+    return wrapped_lengthen_url
 
 
 def test_new_text_tweet(meth, text_status, cache):
@@ -122,4 +143,14 @@ def test_repeat_link_tweet(meth,
                            cache):
     meth(link_status, cache, expand_fn=passthru_expand_fn)
     result = meth(repeat_link_status, cache, expand_fn=passthru_expand_fn)
+    assert result is None
+
+
+def test_sneaky_link_tweet(meth,
+                           link_status,
+                           sneaky_link_status,
+                           nonetwork_expand_fn,
+                           cache):
+    meth(link_status, cache, expand_fn=nonetwork_expand_fn)
+    result = meth(sneaky_link_status, cache, expand_fn=nonetwork_expand_fn)
     assert result is None
