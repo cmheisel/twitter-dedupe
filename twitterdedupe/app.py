@@ -38,17 +38,18 @@ def consider_status(status, cache, cache_length=604800):
     the status has been seen before.
     """
     logger = logging.getLogger("twitterdedupe.consider_status")
-    if len(status.entities['url']) == 0:
+    if len(status.entities['urls']) == 0:
         # Hey there's only text here
-        key = hash("%s.%s" % (status.screen_name, status.text))
+        key = str(hash("%s.%s" % (status.user.screen_name, status.text)))
         if cache.get(key) is None:
             logger.info("CACHE.MISS: %s.%s - %s" % (
-                        status.screen_name,
+                        status.user.screen_name,
                         status.id,
                         status.text
                         ))
             cache.set(key, 1, cache_length)
             return status
+    return None
 
 
 def get_my_unique_statuses(api, since_id, cache, cache_length=604800):
@@ -75,9 +76,7 @@ def get_my_unique_statuses(api, since_id, cache, cache_length=604800):
             # Let text only tweets pass through
             # TODO: Add MD5 checking because maybe someone will make a noisy
             # text account
-            key = _key(screen_name, hash(s.text))
-            if cache.get(key) is None:
-                stati.append(s)
-                cache.set(key, 1, cache_length)
-                logger.info("%s - %s" % (s.id, s.text[:25]))
+            result = consider_status(s, cache, cache_length)
+            if result is not None:
+                stati.append(result)
     return stati
