@@ -31,6 +31,26 @@ def _lengthen_url(url):
         return url
 
 
+def consider_status(status, cache, cache_length=604800):
+    """
+    Looks at a status, compares it to a cache of known urls
+    and text-only Tweets. Returns either the status, or None if
+    the status has been seen before.
+    """
+    logger = logging.getLogger("twitterdedupe.consider_status")
+    if len(status.entities['url']) == 0:
+        # Hey there's only text here
+        key = hash("%s.%s" % (status.screen_name, status.text))
+        if cache.get(key) is None:
+            logger.info("CACHE.MISS: %s.%s - %s" % (
+                        status.screen_name,
+                        status.id,
+                        status.text
+                        ))
+            cache.set(key, 1, cache_length)
+            return status
+
+
 def get_my_unique_statuses(api, since_id, cache, cache_length=604800):
     logger = logging.getLogger("twitterdedupe.get_unique_statuses")
     screen_name = api.me().screen_name
