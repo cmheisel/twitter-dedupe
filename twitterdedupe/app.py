@@ -23,21 +23,25 @@ def _key(screen_name, url):
     return "%s_%s" % (screen_name, url)
 
 
-def _lengthen_url(url):
+def lengthen_url(url, reqlib=None):
+    if reqlib is None:
+        reqlib = requests
     try:
-        r = requests.get(url)
+        r = reqlib.get(url)
         return r.url
     except Exception:
         return url
 
 
-def consider_status(status, cache, cache_length=604800):
+def consider_status(status, cache, cache_length=604800, expand_fn=None):
     """
     Looks at a status, compares it to a cache of known urls
     and text-only Tweets. Returns either the status, or None if
     the status has been seen before.
     """
     logger = logging.getLogger("twitterdedupe.consider_status")
+    if expand_fn is None:
+        expand_fn = lengthen_url
     if len(status.entities['urls']) == 0:
         # Hey there's only text here
         key = str(hash("%s.%s" % (status.user.screen_name, status.text)))
@@ -47,6 +51,16 @@ def consider_status(status, cache, cache_length=604800):
                         status.id,
                         status.text
                         ))
+            cache.set(key, 1, cache_length)
+            return status
+    else:
+        # WE GOT LINKSIGN!!!
+        url = status.entities['urls'][0]['expanded_url']
+        expanded_url = expand_fn(url)
+        key = expanded_url
+        if cache.get(key) is None:
+            logger.info("%s.%s - %s" % (status.user.screen_name,
+                        status.id, expanded_url))
             cache.set(key, 1, cache_length)
             return status
     return None
@@ -65,18 +79,7 @@ def get_my_unique_statuses(api, since_id, cache, cache_length=604800):
     # has to be following the source(s) they want deduped
     timeline = api.home_timeline(since_id=since_id, page=page, count=100)
     for s in timeline:
-        for url in s.entities['urls']:
-            expanded_url = _lengthen_url(url['expanded_url'])
-            key = _key(screen_name, expanded_url)
-            if cache.get(key)is None:
-                stati.append(s)
-                cache.set(key, 1, cache_length)
-                logger.info("%s - %s" % (s.id, expanded_url))
-        if len(s.entities['urls']) == 0:
-            # Let text only tweets pass through
-            # TODO: Add MD5 checking because maybe someone will make a noisy
-            # text account
-            result = consider_status(s, cache, cache_length)
-            if result is not None:
-                stati.append(result)
+        result = consider_status(s, cache, cache_length)
+        if result is not None:
+            stati.append(result)
     return stati

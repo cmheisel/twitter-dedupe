@@ -11,6 +11,9 @@ class MemoryCache(object):
     def _key(self, key):
         return self.prefix + key
 
+    def keys(self):
+        return self._data.keys()
+
     def set(self, key, value, timeout=None):
         """Set key-value in cache with given timeout (or use default one)"""
         key = self._key(key)
@@ -37,6 +40,8 @@ class MockStatus(object):
             'urls': []
         }
         self.text = text
+        if url:
+            self.entities['urls'].append({'expanded_url': url})
 
     @property
     def user(self):
@@ -62,8 +67,35 @@ def text_status():
 
 
 @pytest.fixture
+def link_status():
+    status = MockStatus(
+        "hitchhikers",
+        43,
+        "That's decidedly not the question",
+        "http://www.chrisheisel.com/"
+    )
+    return status
+
+
+@pytest.fixture
+def repeat_link_status():
+    status = MockStatus(
+        "hitchhikers",
+        44,
+        "Most definitely not the question",
+        "http://www.chrisheisel.com/"
+    )
+    return status
+
+
+@pytest.fixture
 def cache():
     return MemoryCache()
+
+
+@pytest.fixture
+def passthru_expand_fn():
+    return lambda url: url
 
 
 def test_new_text_tweet(meth, text_status, cache):
@@ -74,5 +106,20 @@ def test_new_text_tweet(meth, text_status, cache):
 def test_repeat_text_tweet(meth, text_status, cache):
     meth(text_status, cache)
     text_status.id = 999
-    result2 = meth(text_status, cache)
-    assert result2 is None
+    result = meth(text_status, cache)
+    assert result is None
+
+
+def test_new_link_tweet(meth, link_status, passthru_expand_fn, cache):
+    result = meth(link_status, cache, expand_fn=passthru_expand_fn)
+    assert result == link_status
+
+
+def test_repeat_link_tweet(meth,
+                           link_status,
+                           repeat_link_status,
+                           passthru_expand_fn,
+                           cache):
+    meth(link_status, cache, expand_fn=passthru_expand_fn)
+    result = meth(repeat_link_status, cache, expand_fn=passthru_expand_fn)
+    assert result is None
