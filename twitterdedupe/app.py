@@ -62,7 +62,7 @@ def consider_status(status, cache, cache_length=604800, expand_fn=None):
         expanded_url = expand_fn(url)
         key = expanded_url
         if cache.get(key) is None:
-            logger.info("%s.%s - %s" % (status.user.screen_name,
+            logger.info("CACHE.MISS: %s.%s - %s" % (status.user.screen_name,
                         status.id, expanded_url))
             cache.set(key, 1, cache_length)
             return status
