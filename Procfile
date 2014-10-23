@@ -1,1 +1,1 @@
-daemon: python bin/logonly.py --log-file -
+daemon: python bin/retweet.py --log-file -

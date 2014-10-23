@@ -29,7 +29,7 @@ setup(
     url="https://github.com/cmheisel/twitter-dedupe",
     zip_safe=False,
     include_package_data=True,
-    scripts=['bin/logonly.py', ],
+    scripts=['bin/logonly.py', 'bin/retweet.py'],
     package_data={
         # If any package contains *.txt or *.rst files, include them:
         '': ['*.txt', '*.rst', '.html'],
