@@ -21,10 +21,6 @@ def get_since_id(api, screen_name):
         return 1
 
 
-def _key(screen_name, url):
-    return "%s_%s" % (screen_name, url)
-
-
 def lengthen_url(url, reqlib=None):
     if reqlib is None:
         reqlib = requests
