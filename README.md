@@ -29,6 +29,6 @@ How to use
     LOG_LEVEL=WARN # Or INFO, OR DEBUG, etc.
 ```
 5. python bin/logonly.py
-6. Now you have a deamon running that'll examine @{newsoutlet}lites home timeline, and log any tweets it would retwwet as @{newsoutlet}lite
+6. Now you have a deamon running that'll examine @{newsoutlet}lites home timeline, and log any tweets it would retweet as @{newsoutlet}lite
 7. If you're happy quit bin/logonly.py
 8. Now run python bin/retweet.py # NOTE: Doesn't exist yet
