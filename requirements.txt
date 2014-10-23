@@ -9,10 +9,14 @@ tweepy==2.3.0
 websocket-client==0.11.0
 wsgiref==0.1.2
 
-
 redis==2.10.3
-
 
 py==1.4.25
 pytest==2.6.3
 mock==1.0.1
+
+
+pytest-cache==1.0
+pytest-pep8==1.0.6
+pep8==1.5.7
+execnet==1.2.0

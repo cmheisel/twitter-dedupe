@@ -26,6 +26,7 @@ def one_unique_timeline():
     ]
     return timeline
 
+
 @pytest.fixture
 def three_timeline():
     timeline = [
@@ -69,7 +70,7 @@ def test_one_unique_timeline(meth, cache,
 
 
 def test_three_timeline(meth, cache,
-                             nonetwork_expand_fn, three_timeline):
+                        nonetwork_expand_fn, three_timeline):
     api = MockAPI("cmheisel", three_timeline)
     result = meth(api, 1, cache, expand_fn=nonetwork_expand_fn)
     assert len(result) == 3

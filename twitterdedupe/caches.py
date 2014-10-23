@@ -21,7 +21,7 @@ class RedisCache(object):
         """Set key-value in cache with given timeout (or use default one)"""
         timeout = timeout or self._timeout
         key = self._prefix + key
-        ## Add key and define an expire timeout in a pipeline for atomicity
+        # Add key and define an expire timeout in a pipeline for atomicity
         self._redis.pipeline().set(key, cPickle.dumps(value)).expire(key, timeout).execute()
 
     def get(self, key):
