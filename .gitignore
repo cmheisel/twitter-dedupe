@@ -1,3 +1,7 @@
+# Heroku stuff
+.env
+
+# My spike
 slatelite.py
 
 # Byte-compiled / optimized / DLL files
