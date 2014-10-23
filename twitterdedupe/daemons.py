@@ -17,10 +17,9 @@ class Whitelist(logging.Filter):
         return any(f.filter(record) for f in self.whitelist)
 
 
-class LoggingOnlyDaemon(object):
+class LoggingDaemon(object):
     """
-    Daemon that will only log unique tweets, DOES NOT RETWEET
-    Useful for testing.
+    Base daemon that calls process_status passing it each unique Tweet.
     """
 
     def __init__(self, env):
@@ -44,6 +43,9 @@ class LoggingOnlyDaemon(object):
         self.api = login(self.consumer_key, self.consumer_secret,
                          self.access_token, self.access_token_secret)
 
+    def process_status(self, status):
+        pass
+
     def run_forever(self):
         try:
             start_id = get_since_id(self.api, self.api.me().screen_name)
@@ -55,6 +57,7 @@ class LoggingOnlyDaemon(object):
                         start_id = stati[0].id
                     except IndexError:
                         pass
+                    [self.process_status(s) for s in stati]
                     time.sleep(self.interval)
                 except tweepy.error.TweepError, e:
                     self.logger.exception(str(e))
@@ -64,3 +67,14 @@ class LoggingOnlyDaemon(object):
             raise
         except Exception, e:
             self.logger.exception(str(e))
+
+
+class LoggingOnlyDaemon(LoggingDaemon):
+    """
+    Daemon that will only log unique tweets, DOES NOT RETWEET
+    Useful for testing.
+    """
+
+    def process_status(self, status):
+        self.logger.info("RETWEET: https://twitter.com/%s/status/%s" %
+                        (status.user.screen_name, status.id))
