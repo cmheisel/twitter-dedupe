@@ -11,25 +11,22 @@ Say you follow a news outlet that tweets the same link multiple times in a day, 
 
 I'd rather follow @{newsoutlet}-light and have a link show up there only once every 7 days or so.
 
-Notes on implementation plan
--------------------------------
-* Watch account
-    * Poll every N seconds?
-* If text only, retweet via selected account
-    * Defer deuping text only tweets if becomes a thing
-* If link, and link not in one week cache
-    * Retweet via selected account
 
-Duplicate URLs
-* May need to follow URLs to see if they redirect to circumvent URL shortners
-* May need to strip query strings
-
-Open questions to answer
----------------------------
-* Good library for following an account or direct API access?
-* Good library for retweeting?
-* What info do I need from the noisy account to do retweets?
-* Polling daemon or scheduled celery job? Or RQ?
-* Memcache/Redis for cache? Or disk? Is there a nice pluggable cache backend I can use?
-
-http://www.gavinj.net/2012/06/building-python-daemon-process.html
+How to use
+-------------
+1. Set up a Twitter account, say @{newsoutlet}lite
+2. As @{newsoutlet}lite Follow @newsoutlet
+3. Get your Twitter Consumer Key, Consumer Key Secret, Access Key and Access Key Secret from http://dev.twitter.com
+4. Set up some environment variables
+    1. TWITTER_CONSUMER_KEY
+    2. TWITTER_CONSUMER_SECRET
+    3. TWITTER_ACCESS_TOKEN
+    4. TWITTER_ACCESS_TOKEN_SECRET
+    5. REDISTOGO_URL=redis://{user}:{pass}@{domain}:{port}
+    6. TWITTER_SCREEN_NAME={newsoutlet}lite
+    7. WAIT_INTERVAL=300 # Time to wait between polls, in seconds
+    8. LOG_LEVEL=WARN # Or INFO, OR DEBUG, etc.
+5. python bin/logonly.py
+6. Now you have a deamon running that'll examine @{newsoutlet}lites home timeline, and log any tweets it would retwwet as @{newsoutlet}lite
+7. If you're happy quiet bin/logonly.py
+8. Noew run python bin/retweet.py # NOTE: Doesn't exist yet
