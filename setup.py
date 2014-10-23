@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages, Command
 
-version = "0.2"
+version = "0.5"
 
 
 class PyTest(Command):
