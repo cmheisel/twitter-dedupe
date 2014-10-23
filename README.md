@@ -31,4 +31,4 @@ How to use
 5. python bin/logonly.py
 6. Now you have a deamon running that'll examine @{newsoutlet}lites home timeline, and log any tweets it would retweet as @{newsoutlet}lite
 7. If you're happy quit bin/logonly.py
-8. Now run python bin/retweet.py # NOTE: Doesn't exist yet
+8. Now run python bin/retweet.py
