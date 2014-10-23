@@ -77,7 +77,7 @@ class LoggingOnlyDaemon(LoggingDaemon):
 
     def process_status(self, status):
         self.logger.info("RETWEET: https://twitter.com/%s/status/%s" %
-                        (status.user.screen_name, status.id))
+                         (status.user.screen_name, status.id))
 
 
 class RetweetDaemon(LoggingDaemon):
@@ -88,5 +88,5 @@ class RetweetDaemon(LoggingDaemon):
 
     def process_status(self, status):
         self.logger.info("RETWEET: https://twitter.com/%s/status/%s" %
-                        (status.user.screen_name, status.id))
+                         (status.user.screen_name, status.id))
         self.api.retweet(status.id)
