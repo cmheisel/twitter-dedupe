@@ -1,1 +1,1 @@
-daemon: python bin/retweet.py --log-file -
+daemon: python bin/daemon.py --log-file -

@@ -31,6 +31,7 @@ class LoggingDaemon(object):
         self.screen_name = env['TWITTER_SCREEN_NAME']
         self.interval = int(env['WAIT_INTERVAL'])
         self.log_level = getattr(logging, env['LOG_LEVEL'])
+        self.do_retweet = bool(int(env.get('RETWEET', False)))
 
         self.redis = redis.from_url(self.redis_url)
         self.cache = RedisCache(self.redis, "cache|%s|" % self.screen_name)
@@ -69,24 +70,16 @@ class LoggingDaemon(object):
             self.logger.exception(str(e))
 
 
-class LoggingOnlyDaemon(LoggingDaemon):
+class ToggleDaemon(LoggingDaemon):
     """
-    Daemon that will only log unique tweets, DOES NOT RETWEET
-    Useful for testing.
-    """
-
-    def process_status(self, status):
-        self.logger.info("RETWEET: https://twitter.com/%s/status/%s" %
-                         (status.user.screen_name, status.id))
-
-
-class RetweetDaemon(LoggingDaemon):
-    """
-    Daemon that will only log unique tweets, DOES NOT RETWEET
-    Useful for testing.
+    Daemon that will only log by default unless it the env
+    passed to it contains RETWEET=1
     """
 
     def process_status(self, status):
-        self.logger.info("RETWEET: https://twitter.com/%s/status/%s" %
-                         (status.user.screen_name, status.id))
-        self.api.retweet(status.id)
+        verb = "NOOP-RETWEET"
+        if self.do_retweet:
+            self.api.retweet(status.id)
+            verb = "RETWEET"
+        self.logger.info("%s: https://twitter.com/%s/status/%s" %
+                         (verb, status.user.screen_name, status.id))
