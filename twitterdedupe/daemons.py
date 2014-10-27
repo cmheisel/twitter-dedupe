@@ -32,14 +32,20 @@ class LoggingDaemon(object):
         self.interval = int(env['WAIT_INTERVAL'])
         self.log_level = getattr(logging, env['LOG_LEVEL'])
         self.do_retweet = bool(int(env.get('RETWEET', False)))
+        self.instance = env.get('INSTANCE')
 
         self.redis = redis.from_url(self.redis_url)
         self.cache = RedisCache(self.redis, "cache|%s|" % self.screen_name)
 
-        logging.basicConfig(level=self.log_level)
+        format_str = "%(levelname)s:%(name)s::%(message)s"
+        log_prefix = "%s-%s:" % (self.instance, self.screen_name)
+        format_str = log_prefix + format_str
+
+        root_handler_name = self.screen_name
+        logging.basicConfig(level=self.log_level, format=format_str)
         for handler in logging.root.handlers:
-            handler.addFilter(Whitelist(self.screen_name, 'twitterdedupe'))
-        self.logger = logging.getLogger(self.screen_name)
+            handler.addFilter(Whitelist(root_handler_name, 'twitterdedupe'))
+        self.logger = logging.getLogger(root_handler_name)
 
         self.api = login(self.consumer_key, self.consumer_secret,
                          self.access_token, self.access_token_secret)
