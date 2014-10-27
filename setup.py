@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages, Command
 
-version = "0.6"
+version = "0.6.1"
 
 
 class PyTest(Command):
@@ -29,7 +29,7 @@ setup(
     url="https://github.com/cmheisel/twitter-dedupe",
     zip_safe=False,
     include_package_data=True,
-    scripts=['bin/logonly.py', 'bin/retweet.py'],
+    scripts=['bin/daemon.py', ],
     package_data={
         # If any package contains *.txt or *.rst files, include them:
         '': ['*.txt', '*.rst', '.html'],
