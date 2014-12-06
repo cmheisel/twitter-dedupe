@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages, Command
 
-version = "0.6.1"
+version = "0.6.3"
 
 
 class PyTest(Command):
@@ -32,7 +32,7 @@ setup(
     scripts=['bin/daemon.py', ],
     package_data={
         # If any package contains *.txt or *.rst files, include them:
-        '': ['*.txt', '*.rst', '.html'],
+        '': ['*.txt', '*.rst', '.html', '*.md'],
     },
     packages=find_packages(),
     classifiers=[
