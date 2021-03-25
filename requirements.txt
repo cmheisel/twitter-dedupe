@@ -1,4 +1,4 @@
-PyYAML==3.11
+PyYAML==5.4
 docker-py==0.5.3
 docopt==0.6.2
 fig==1.0.0
